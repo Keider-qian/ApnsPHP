@@ -12,6 +12,7 @@ A **full set** of *open source* PHP classes to interact with the **Apple Push No
 
 News
 ----
+- **June 16, 2015**, add apple Binary verion setting.
 - **May 12, 2015**, ApnsPHP has been moved to the [Immobiliare Labs](https://github.com/immobiliare) organization on github.
 - **May 07, 2015**, ApnsPHP has increased the default payload size to 2048 and is now using the TLS protocol by default instead of the old SSL. News from Apple: https://developer.apple.com/news/?id=10222014a
 - **October 26, 2012**, Project source code has moved to [github](https://github.com/immobiliare/ApnsPHP).
