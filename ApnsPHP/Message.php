@@ -40,6 +40,7 @@ class ApnsPHP_Message
 
 	protected $_aDeviceTokens = array(); /**< @type array Recipients device tokens. */
 
+    protected $_nVersion;
 	protected $_sText; /**< @type string Alert message to display to the user. */
 	protected $_nBadge; /**< @type integer Number to badge the application icon with. */
 	protected $_sSound; /**< @type string Sound to play. */
@@ -164,6 +165,33 @@ class ApnsPHP_Message
 	public function getBadge()
 	{
 		return $this->_nBadge;
+	}
+
+    /**
+	 * Set apple Binary version.
+	 *
+	 * @param  $nBVersion @type integer A number the Binary version.
+	 * @throws ApnsPHP_Message_Exception if version is not an
+	 *         integer.
+	 */
+	public function setVersion($nVersion)
+	{
+		if (!is_int($nVersion)) {
+			throw new ApnsPHP_Message_Exception(
+				"Invalid badge number '{$nBadge}'"
+			);
+		}
+		$this->_nVersion = $nVersion;
+	}
+
+	/**
+	 * Get the number apple Binary version.
+	 *
+	 * @return @type integer The number is apple Binary version.
+	 */
+	public function getVersion()
+	{
+		return $this->_nVersion;
 	}
 
 	/**

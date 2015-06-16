@@ -35,16 +35,17 @@ $push = new ApnsPHP_Push(
 );
 
 // Set the Provider Certificate passphrase
-// $push->setProviderCertificatePassphrase('test');
 
 // Set the Root Certificate Autority to verify the Apple remote peer
-$push->setRootCertificationAuthority('entrust_root_certification_authority.pem');
 
 // Connect to the Apple Push Notification Service
 $push->connect();
 
 // Instantiate a new Message with a single recipient
-$message = new ApnsPHP_Message('1e82db91c7ceddd72bf33d74ae052ac9c84a065b35148ac401388843106a7485');
+$message = new ApnsPHP_Message('3c7f3fa2ae641ecbceecac71d1bccc3d9f3786b775ddc829d0b20fe852fae891');
+
+// set the apple Binary version;
+$message->setVersion(2);
 
 // Set a custom identifier. To get back this identifier use the getCustomIdentifier() method
 // over a ApnsPHP_Message object retrieved with the getErrors() message.

@@ -101,6 +101,7 @@ class ApnsPHP_Push extends ApnsPHP_Abstract
 			$this->_aMessageQueue[$nMessageID] = array(
 				'MESSAGE' => $message,
 				'BINARY_NOTIFICATION' => $this->_getBinaryNotification(
+					$message->getVersion(),
 					$message->getRecipient($i),
 					$sMessagePayload,
 					$nMessageID,
@@ -260,16 +261,85 @@ class ApnsPHP_Push extends ApnsPHP_Abstract
 	 *         the notification at all. Default is 86400 * 7, 7 days.
 	 * @return @type string A binary notification.
 	 */
-	protected function _getBinaryNotification($sDeviceToken, $sPayload, $nMessageID = 0, $nExpire = 604800)
+	protected function _getBinaryNotification($version = 2, $sDeviceToken, $sPayload, $nMessageID, $nExpire)
+	{
+		switch ($version) {
+			case 0:
+				return $this->_getBinaryByappleVersion_0(
+					$sDeviceToken,
+					$sPayload
+				);
+				break;
+				case 1:
+				return $this->_getBinaryByappleVersion_1(
+					$sDeviceToken,
+					$sPayload,
+					$nMessageID,
+					$nExpire
+				);
+				break;
+				case 2:
+				return $this->_getBinaryByappleVersion_2(
+					$sDeviceToken,
+					$sPayload,
+					$nMessageID,
+					$nExpire
+				);
+				break;
+			
+			default:
+				return $this->_getBinaryByappleVersion_2(
+					$sDeviceToken,
+					$sPayload,
+					$nMessageID,
+					$nExpire
+				);
+				break;
+		}
+
+		return $sRet;
+	}
+
+	protected function _getBinaryByappleVersion_0($sDeviceToken, $sPayload)
+	{
+        $sBinary = chr(0) . pack('n', self::DEVICE_BINARY_SIZE) . pack('H*', $sDeviceToken) . pack('n', strlen($sPayload)) . $sPayload;
+        
+        return $sBinary;
+	}
+
+	protected function _getBinaryByappleVersion_1($sDeviceToken, $sPayload, $nMessageID = 0, $nExpire = 604800)
 	{
 		$nTokenLength = strlen($sDeviceToken);
 		$nPayloadLength = strlen($sPayload);
 
-		$sRet  = pack('CNNnH*', self::COMMAND_PUSH, $nMessageID, $nExpire > 0 ? time() + $nExpire : 0, self::DEVICE_BINARY_SIZE, $sDeviceToken);
-		$sRet .= pack('n', $nPayloadLength);
-		$sRet .= $sPayload;
+		$sBinary  = pack('CNNnH*', 1, $nMessageID, $nExpire > 0 ? time() + $nExpire : 0, self::DEVICE_BINARY_SIZE, $sDeviceToken);
+		$sBinary .= pack('n', $nPayloadLength);
+		$sBinary .= $sPayload;
 
-		return $sRet;
+		return $sBinary;
+	}
+
+	protected function _getBinaryByappleVersion_2($sDeviceToken, $sPayload, $nMessageID = 0, $nExpire = 604800)
+	{
+	    $identifierData = pack('N', '100');
+		$ExpirationData = pack('N', time() + 86400);
+
+		$tokenItem = chr(1) . pack('n', 32) . pack('H*', $sDeviceToken);
+		$payloadItem = chr(2) . pack('n', strlen($sPayload)) . $sPayload;
+		$identifierItem = chr(3) . pack('n', strlen($identifierData)) . $identifierData;
+		$ExpirationItem = chr(4) . pack('n', strlen($ExpirationData)) . $ExpirationData;
+
+		$fameData = $tokenItem . $payloadItem . $identifierItem . $ExpirationItem;
+
+		$sBinary = 
+		    // new: Command "2"
+		       chr(2)
+		     . pack('N', strlen($fameData))
+		     . $fameData ;
+
+        print "\n" . "sending message :" . $sPayload . "\n" . "\n"; 
+
+        return $sBinary;
 	}
 
 	/**
